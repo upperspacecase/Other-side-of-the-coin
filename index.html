@@ -140,38 +140,37 @@
 
   .face.back { transform: rotateY(180deg); }
 
-  .emotion {
-    font-size: 33px;
+  /* curved word hugging the inside of the rim */
+  .curve {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+  }
+  .curve text {
     font-weight: 700;
     letter-spacing: 1px;
     text-transform: uppercase;
-    line-height: 1.05;
-    text-shadow: 0 1px 0 rgba(255,255,255,0.35), 0 -1px 1px rgba(0,0,0,0.35);
+    paint-order: stroke fill;
+    stroke: rgba(0, 0, 0, 0.38);
+    stroke-width: 0.7px;
   }
 
   .body-note {
-    margin-top: 12px;
     font-size: 12.5px;
     font-style: italic;
-    max-width: 170px;
-    opacity: 0.8;
+    max-width: 150px;
     line-height: 1.35;
+    color: rgba(28, 18, 10, 0.82);
+    text-shadow: 0 1px 0 rgba(255, 255, 255, 0.28);
   }
 
   .star {
-    font-size: 15px;
+    font-size: 16px;
     letter-spacing: 6px;
-    margin-bottom: 10px;
+    margin-bottom: 12px;
     opacity: 0.7;
-  }
-
-  .liberty {
-    font-family: "Helvetica Neue", Arial, sans-serif;
-    font-size: 9.5px;
-    letter-spacing: 3px;
-    margin-top: 14px;
-    opacity: 0.6;
-    text-transform: uppercase;
   }
 
   .tap-hint {
@@ -233,16 +232,28 @@
   <div class="stage">
     <div class="coin" id="coin" role="button" tabindex="0" aria-label="Flip the coin">
       <div class="face front" id="faceFront">
+        <svg class="curve" viewBox="0 0 200 200">
+          <defs>
+            <path id="arcFront" d="M 30,100 A 70,70 0 0 1 170,100" />
+          </defs>
+          <text id="emoFront" text-anchor="middle" font-size="17">
+            <textPath href="#arcFront" startOffset="50%" textLength="150" lengthAdjust="spacingAndGlyphs">EXCITEMENT</textPath>
+          </text>
+        </svg>
         <div class="star">&#9733; &#9733; &#9733;</div>
-        <div class="emotion" id="emoFront">EXCITEMENT</div>
         <div class="body-note" id="noteFront"></div>
-        <div class="liberty">&starf; Liberty &middot; In Feeling We Trust &starf;</div>
       </div>
       <div class="face back" id="faceBack">
+        <svg class="curve" viewBox="0 0 200 200">
+          <defs>
+            <path id="arcBack" d="M 30,100 A 70,70 0 0 1 170,100" />
+          </defs>
+          <text id="emoBack" text-anchor="middle" font-size="17">
+            <textPath href="#arcBack" startOffset="50%" textLength="150" lengthAdjust="spacingAndGlyphs">FEAR</textPath>
+          </text>
+        </svg>
         <div class="star">&#9733; &#9733; &#9733;</div>
-        <div class="emotion" id="emoBack">FEAR</div>
         <div class="body-note" id="noteBack"></div>
-        <div class="liberty">&starf; Liberty &middot; In Feeling We Trust &starf;</div>
       </div>
     </div>
   </div>
@@ -327,7 +338,7 @@ const PAIRS = [
       words: ["Tender", "Devoted", "Smitten", "Warm", "Cherished", "Giddy", "Drawn in"]
     },
     back: {
-      label: "Infatuation Dread",
+      label: "Anxiety",
       color: "#b0c4d8",
       coin: "linear-gradient(145deg,#d4e1ef,#869ab5 55%,#3f5066)",
       note: "butterflies, fluttering chest, can't think straight",
@@ -417,6 +428,8 @@ const hint = document.getElementById("hint");
 
 const emoFront = document.getElementById("emoFront");
 const emoBack = document.getElementById("emoBack");
+const wordFront = emoFront.querySelector("textPath");
+const wordBack = emoBack.querySelector("textPath");
 const noteFront = document.getElementById("noteFront");
 const noteBack = document.getElementById("noteBack");
 const faceFront = document.getElementById("faceFront");
@@ -445,16 +458,19 @@ function renderPills() {
 
 function renderFaces() {
   const p = PAIRS[pairIdx];
-  emoFront.textContent = p.front.label;
-  emoFront.style.color = p.front.color;
+  // one metal colour for the whole coin — it stays the same across a flip
+  const metal = p.coin || p.front.coin;
+
+  wordFront.textContent = p.front.label.toUpperCase();
+  emoFront.setAttribute("fill", p.front.color);
   noteFront.textContent = p.front.note;
-  faceFront.style.background = p.front.coin;
+  faceFront.style.background = metal;
   faceFront.style.color = p.front.color;
 
-  emoBack.textContent = p.back.label;
-  emoBack.style.color = p.back.color;
+  wordBack.textContent = p.back.label.toUpperCase();
+  emoBack.setAttribute("fill", p.back.color);
   noteBack.textContent = p.back.note;
-  faceBack.style.background = p.back.coin;
+  faceBack.style.background = metal;
   faceBack.style.color = p.back.color;
 }
 
